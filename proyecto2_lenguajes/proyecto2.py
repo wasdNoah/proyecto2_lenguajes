@@ -190,10 +190,7 @@ class Gramatica():
         
         #comenzando a quitar la recursividad por la izquierda
         
-        # lado_izquierdo_noR = [] #lista que contiene lado izquierdo de las producciones no recursivas
-        # for produccion_noR in producc_noRI:
-        #     lado_izquierdo_noR.append(produccion_noR.lado_izq)
-            
+        #buscando las producciones que no tienen recursividad y tampoco tienen relación con las produccines recursivas    
         lado_izquierdo_R = []
         for produccion_r in producc_RI:
             lado_izquierdo_R.append(produccion_r.lado_izq)
@@ -220,6 +217,7 @@ class Gramatica():
         
         for produccion in producc_RI:
             nt_prima = produccion.lado_izq+'P'
+            self.no_terminales.append(nt_prima) #agregando prima a la lista de no terminales
             
             produccion_ep = '{} > {}'.format(nt_prima, 'epsilon')
             produccion_epsilon = Produccion(nt_prima, 'epsilon', produccion_ep)
@@ -267,6 +265,8 @@ class Gramatica():
                     nueva_produccion = Produccion(produccion_a.lado_izq, elementos_derecha, produccion_ingresar)
                     nuevas_producciones.append(nueva_produccion)
         
+        print('Lista de terminales hasta ahora --> ', self.no_terminales)
+        input('')
         return nuevas_producciones
     
     def eliminar_repetidos(self):
@@ -351,6 +351,7 @@ class Gramatica():
                 print('Se generó el archivo')
             elif eleccion == '4':
                 print('Regresando al Menú Autómata de Pila')
+                input('')
                 break
     
     def validacion(self, cadena):
@@ -403,13 +404,13 @@ class Gramatica():
                         else:
                             primeros_char_insertar_pila.append(coincidencia.insertar_pila[0])
                     
-                    # print('Coincidencias:')
-                    # for coincidencia in coincidencias:
-                    #     print(coincidencia.insertar_pila)
+                    print('Coincidencias:')
+                    for coincidencia in coincidencias:
+                        print(coincidencia.insertar_pila)
                     
-                    # print('Primeros char:')
-                    # print(primeros_char_insertar_pila)
-                    # input('')
+                    print('Primeros char:')
+                    print(primeros_char_insertar_pila)
+                    input('')
                     
                     for char in primeros_char_insertar_pila:
                         if char.isupper() and pila_cadena[-1] not in primeros_char_insertar_pila:
@@ -455,27 +456,32 @@ class Gramatica():
                     if hubo_movimiento == True:
                         pass
                     else:
-                        if 'epsilon' in primeros_char_insertar_pila and pila_cadena[-1] not in primeros_char_insertar_pila:
+                        if 'epsilon' in primeros_char_insertar_pila and len(pila_cadena) == 0:
                             pila.pop()
                             transicion_movimiento = '(q, λ, {}; q, epsilon)'.format(pila[-1]) #transicion que se insertará en achivo
                             movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, transicion_movimiento)
                         else:
-                            if pila_cadena[-1] not in primeros_char_insertar_pila:
-                                print('Cadena inválidaaaadfn')
-                                input('')
-                                
-                                movimientos = movimientos + '¡¡¡ENTRADA INVÁLIDA!!!' + '\n'
-                                
-                                condicion = False
+                            if 'epsilon' in primeros_char_insertar_pila and pila_cadena[-1] not in primeros_char_insertar_pila:
+                                pila.pop()
+                                transicion_movimiento = '(q, λ, {}; q, epsilon)'.format(pila[-1]) #transicion que se insertará en achivo
+                                movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, transicion_movimiento)
                             else:
-                                for coincidencia in coincidencias:
-                                    if coincidencia.insertar_pila[0] == pila_cadena[-1]:
-                                        pila.pop()
-                                        for char in reversed(coincidencia.insertar_pila):
-                                            pila.append(char)
-                                        
-                                        movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, coincidencia.imprimir())
-                                        
+                                if pila_cadena[-1] not in primeros_char_insertar_pila:
+                                    print('Cadena inválidaaaadfn')
+                                    input('')
+                                    
+                                    movimientos = movimientos + '¡¡¡ENTRADA INVÁLIDA!!!' + '\n'
+                                    
+                                    condicion = False
+                                else:
+                                    for coincidencia in coincidencias:
+                                        if coincidencia.insertar_pila[0] == pila_cadena[-1]:
+                                            pila.pop()
+                                            for char in reversed(coincidencia.insertar_pila):
+                                                pila.append(char)
+                                            
+                                            movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, coincidencia.imprimir())
+                                            
                 elif pila[-1] in self.terminales:
                     if (pila[-1] == pila_cadena[-1]):
                         transicion_agregar = '(q, {}, {}; q, λ)'.format(pila[-1], pila_cadena[-1])
@@ -499,12 +505,12 @@ class Gramatica():
                     movimientos = movimientos + '¡¡¡ENTRADA VÁLIDA!!!' + '\n'
                     condicion = False
                 
-            #     print('Pila --> ', pila)
-            #     print('Cadena --> ', pila_cadena)
-            #     input('')
+                print('Pila --> ', pila)
+                print('Cadena --> ', pila_cadena)
+                input('')
             
-            # print('Salió del ciclo')
-            # input('')
+            print('Salió del ciclo')
+            input('')
         except:
             print('Cadena no válida try catch')
             input('')
@@ -705,18 +711,22 @@ def menu_automataPila():
         if eleccion == '1':
             nombre_gramatica = input('Ingresa un nombre para la gramática: >> ')
             
-            if len(lista_gramaticas) == 0:
-                nueva_gramatica = Gramatica(nombre_gramatica)
-                menu_gramatica(nueva_gramatica)
+            if nombre_gramatica == '' or nombre_gramatica == ' ':
+                print('Debes ingresar el nombre de una gramática')
+                input('')
             else:
-                for gramatica in lista_gramaticas:
-                    if nombre_gramatica == gramatica.nombre_gramatica:
-                        limpiar_terminal()
-                        modificar_gramatica(nombre_gramatica)
-                    else:
-                        limpiar_terminal()
-                        nueva_gramatica = Gramatica(nombre_gramatica)
-                        menu_gramatica(nueva_gramatica)
+                if len(lista_gramaticas) == 0:
+                    nueva_gramatica = Gramatica(nombre_gramatica)
+                    menu_gramatica(nueva_gramatica)
+                else:
+                    for gramatica in lista_gramaticas:
+                        if nombre_gramatica == gramatica.nombre_gramatica:
+                            limpiar_terminal()
+                            modificar_gramatica(nombre_gramatica)
+                        else:
+                            limpiar_terminal()
+                            nueva_gramatica = Gramatica(nombre_gramatica)
+                            menu_gramatica(nueva_gramatica)
                 
         elif eleccion == '2':
             gramatica_buscar = input('Nombre de la gramática: >> ')
