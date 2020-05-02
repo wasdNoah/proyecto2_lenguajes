@@ -225,6 +225,9 @@ class Gramatica():
         
         self.producciones = lista_sin_repetidos
     
+    def ingresar_producciones_archivo(self, produccion):
+        pass
+    
     def crear_automata_pila(self):
         alfabeto = self.terminales
         simbolos_pila = self.terminales + self.no_terminales #simbolos de pila
@@ -269,7 +272,10 @@ class Gramatica():
     
     def validar_cadena(self):
         
+        contenido_movimientos = ''
+        
         while True:
+            
             print('1. Ingresar cadena')
             print('2. Resultado')
             print('3. Reporte')
@@ -280,19 +286,28 @@ class Gramatica():
             
             if eleccion == '1':
                 cadena_a_validar = input('Ingresa la cadena que deseas evaluar: >> ')
-                self.validacion(cadena_a_validar)
+                
+                contenido_movimientos = self.validacion(cadena_a_validar)
+                
+                # print('Contenido para el archivo')
+                # print(contenido_movimientos)
+                # input('')
                 
                 print('Terminó de validar la cadena')
                 input('')
             elif eleccion == '2':
                 pass
             elif eleccion == '3':
-                pass
+                self.generar_archivo_movimientos(contenido_movimientos)
+                print('Se generó el archivo')
             elif eleccion == '4':
                 print('Regresando al Menú Autómata de Pila')
                 break
     
     def validacion(self, cadena):
+        
+        movimientos = ''
+        
         condicion = True
         hubo_movimiento = False
         automata = self.crear_automata_pila() #automata que se utlizará
@@ -308,6 +323,9 @@ class Gramatica():
         pila.append('#')
         pila.append(str(self.nt_inicial))
         
+        movimientos = movimientos + 'PILA $ ENTRADA $ TRANSICION' + '\n'
+        movimientos = self.agregar_movimiento(movimientos, pila, cadena, '(i, λ, λ; p, #)')
+        
         try:
             while condicion == True:
                 
@@ -319,6 +337,8 @@ class Gramatica():
                         if self.nt_inicial == transicion.sacar_pila:
                             for char in reversed(transicion.insertar_pila):
                                 pila.append(char)
+                            
+                            movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, transicion.imprimir())
                     
                 elif pila[-1] in self.no_terminales:
                     coincidencias = []
@@ -346,8 +366,8 @@ class Gramatica():
                         if char.isupper() and pila_cadena[-1] not in primeros_char_insertar_pila:
                             coincidencias2 = []
                             primeros_char = []
-                            # print('No terminal encontrado --> ', char)
-                            # input('')
+                            print('No terminal encontrado --> ', char)
+                            input('')
                             
                             for transicion in automata.transiciones:
                                 if transicion.sacar_pila == char:
@@ -361,12 +381,18 @@ class Gramatica():
                             
                             if 'epsilon' in primeros_char and pila_cadena[-1] not in primeros_char:
                                 pila.pop()
+                                
+                                transicion_movimiento = '(q, λ, {}; q, epsilon)'.format(char) #transicion que se insertará en achivo
+                                movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, transicion_movimiento)
+                                
                                 hubo_movimiento = True
                             else:
                                 if pila_cadena[-1] not in primeros_char:
                                     print('CADENA INVALIDAAAAAfdafdsafs4555')
-                                    input()
-                                    return
+                                    input('')
+                                    
+                                    movimientos = movimientos + '¡¡¡ENTRADA INVÁLIDA!!!' + '\n'
+                                    condicion = False
                                 else:
                                     for match in coincidencias2:
                                         if match.insertar_pila[0] == pila_cadena[-1]:
@@ -374,6 +400,7 @@ class Gramatica():
                                             for char in reversed(match.insertar_pila):
                                                 pila.append(char)
                                             
+                                            movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, match.imprimir())
                                             hubo_movimiento = True
                     
                     if hubo_movimiento == True:
@@ -381,10 +408,15 @@ class Gramatica():
                     else:
                         if 'epsilon' in primeros_char_insertar_pila and pila_cadena[-1] not in primeros_char_insertar_pila:
                             pila.pop()
+                            transicion_movimiento = '(q, λ, {}; q, epsilon)'.format(pila[-1]) #transicion que se insertará en achivo
+                            movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, transicion_movimiento)
                         else:
                             if pila_cadena[-1] not in primeros_char_insertar_pila:
                                 print('Cadena inválidaaaadfn')
                                 input('')
+                                
+                                movimientos = movimientos + '¡¡¡ENTRADA INVÁLIDA!!!' + '\n'
+                                
                                 condicion = False
                             else:
                                 for coincidencia in coincidencias:
@@ -393,13 +425,20 @@ class Gramatica():
                                         for char in reversed(coincidencia.insertar_pila):
                                             pila.append(char)
                                         
+                                        movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, coincidencia.imprimir())
+                                        
                 elif pila[-1] in self.terminales:
                     if (pila[-1] == pila_cadena[-1]):
+                        transicion_agregar = '(q, {}, {}; q, λ)'.format(pila[-1], pila_cadena[-1])
+                        movimientos = self.agregar_movimiento(movimientos, pila, pila_cadena, transicion_agregar)
+                        
                         pila_cadena.pop()
                         pila.pop()
+                        
                     elif pila[-1] != pila_cadena[-1]:
                         print('Cadena inválida')
                         input('')
+                        movimientos = movimientos + '¡¡¡ENRTADA INVÁLIDA!!!' + '\n'
                         condicion = False
                 
                 #cadena aceptada
@@ -407,6 +446,8 @@ class Gramatica():
                     pila.pop()
                     print('Cadena válida :D')
                     input('')
+                    
+                    movimientos = movimientos + '¡¡¡ENTRADA VÁLIDA!!!' + '\n'
                     condicion = False
                 
             #     print('Pila --> ', pila)
@@ -419,6 +460,24 @@ class Gramatica():
             print('Cadena no válida try catch')
             input('')
         
+        print(movimientos)
+        input('')
+        
+        return movimientos
+    
+    #método que va agregando los movimientos a la cadena principal
+    def agregar_movimiento(self, texto, pila, cadena, transicion):
+        texto = texto + '{}${}${}'.format(pila, cadena, transicion) + '\n'
+        return texto
+    
+    #generando archivo CSV
+    def generar_archivo_movimientos(self, contenido):
+        ruta = 'D:\Repos-Github\proyecto2_lenguajes\proyecto2_lenguajes\Reporte.csv'
+        archivo = open(ruta, 'a', encoding='utf-8')
+        
+        archivo.write(contenido)
+        archivo.close()
+    
     def imprimir_automata(self):
         automata = self.crear_automata_pila()
         automata.imprimir()
@@ -493,7 +552,7 @@ class Transicion():
         self.insertar_pila = insertar_pila
     
     def imprimir(self):
-        print('({}, {}, {}; {}, {})'.format(self.estado_actual, self.lectura_cadena, self.sacar_pila, self.estado_destino, ', '.join(self.insertar_pila).replace(', ', '')))
+        return '({}, {}, {}; {}, {})'.format(self.estado_actual, self.lectura_cadena, self.sacar_pila, self.estado_destino, ', '.join(self.insertar_pila).replace(', ', ''))
     
 def menu_automataPila():
     limpiar_terminal()
