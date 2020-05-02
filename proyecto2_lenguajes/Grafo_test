@@ -1,0 +1,20 @@
+// wenas tardes
+digraph {
+	A [label=i shape=circle]
+	B [label=p shape=circle]
+	A -> B [label="λ,λ;#" constraint=false]
+	C [label=q shape=circle]
+	B -> C [label="λ,λ;S" constraint=false]
+	C -> C [label="λ, S; zMNz
+λ, M; aMa
+λ, M; z
+λ, N; bNb
+λ, N; z
+z, z; λ
+a, a; λ
+b, b; λ
+λ, #; λ
+"]
+	D [label=f shape=doublecircle]
+	C -> D [label="λ, #; λ" constraint=True]
+}

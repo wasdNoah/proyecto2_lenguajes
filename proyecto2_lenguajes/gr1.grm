@@ -1,0 +1,5 @@
+A > aB
+A > bC
+B > cC
+B > epsilon
+C > cA
