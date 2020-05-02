@@ -187,6 +187,24 @@ class Gramatica():
             print('Gramática presenta recursividad por la izquierda.')
             input('')
         
+        for produccion in producc_noRI:
+            if produccion.lado_izq == self.nt_inicial:
+                lado_derecho = ''
+                for char in produccion.lado_der:
+                    if char == ' ' or char is None or char == '':
+                        pass
+                    else:
+                        lado_derecho = lado_derecho + char + ' '
+                
+                lado_derecho = lado_derecho[:-1]
+                
+                elementos = []
+                for char in produccion.lado_der:
+                    elementos.append(char)
+                
+                produccion_inicial = '{} > {}'.format(produccion.lado_izq, lado_derecho)
+                produccion_incial_ = Produccion(produccion.lado_izq, elementos, produccion_inicial)
+                nuevas_producciones.append(produccion_incial_)
         #comenzando a quitar la recursividad por la izquierda
         for produccion in producc_RI:
             nt_prima = produccion.lado_izq+'P'
@@ -195,11 +213,20 @@ class Gramatica():
             produccion_epsilon = Produccion(nt_prima, 'epsilon', produccion_ep)
             nuevas_producciones.append(produccion_epsilon)
             
+            lado_derecho = ''
+            for char in produccion.lado_der[1:]:
+                if char == ' ' or char is None or char == '':
+                    pass
+                else:
+                    lado_derecho = lado_derecho + char + ' '
+            
+            lado_derecho = lado_derecho[:-1]
+            
             elementos = []
-            for elemento in produccion.lado_der[1:]:
-                elementos.append(elemento)
+            for char in produccion.lado_der[1:]:
+                elementos.append(char)
                 
-            produccion_prim = '{} > {} {}'.format(nt_prima, *elementos, nt_prima)
+            produccion_prim = '{} > {} {}'.format(nt_prima, lado_derecho, nt_prima)
             produccion_prima = Produccion(nt_prima, elementos, produccion_prim)
             nuevas_producciones.append(produccion_prima)
         
@@ -207,26 +234,33 @@ class Gramatica():
             for produccion_b in producc_RI:
                 if produccion_a.lado_izq == produccion_b.lado_izq:
                     nt_prima_ = produccion_a.lado_izq+'P'
+                    
+                    lado_derecho = ''
+                    for char in produccion_a.lado_der:
+                        if char == ' ' or char is None or char == '':
+                            pass
+                        else:
+                            lado_derecho = lado_derecho + char + ' '
+                            
+                    lado_derecho = lado_derecho[:-1]
+                    
                     elementos_derecha = []
                     for elemento in produccion_a.lado_der:
                         elementos_derecha.append(elemento)
                     
-                    produccion_ingresar = '{} > {} {}'.format(produccion_a.lado_izq, *elementos_derecha, nt_prima_)
+                    produccion_ingresar = '{} > {} {}'.format(produccion_a.lado_izq, lado_derecho, nt_prima_)
                     nueva_produccion = Produccion(produccion_a.lado_izq, elementos_derecha, produccion_ingresar)
                     nuevas_producciones.append(nueva_produccion)
         
         return nuevas_producciones
     
-    def eliminar_repetidos(self): #PENDIENTE DE TERMINAR
+    def eliminar_repetidos(self):
         lista_sin_repetidos = []
         for produccion in self.producciones:
             if produccion.original not in lista_sin_repetidos:
                 lista_sin_repetidos.append(produccion)
         
         self.producciones = lista_sin_repetidos
-    
-    def ingresar_producciones_archivo(self, produccion):
-        pass
     
     def crear_automata_pila(self):
         alfabeto = self.terminales
