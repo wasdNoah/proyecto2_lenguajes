@@ -512,6 +512,9 @@ class Gramatica():
         archivo.write(contenido)
         archivo.close()
     
+    def generar_arbol(self):
+        pass
+    
     def imprimir_automata(self):
         automata = self.crear_automata_pila()
         automata.imprimir()
@@ -587,7 +590,23 @@ class Transicion():
     
     def imprimir(self):
         return '({}, {}, {}; {}, {})'.format(self.estado_actual, self.lectura_cadena, self.sacar_pila, self.estado_destino, ', '.join(self.insertar_pila).replace(', ', ''))
+
+#-------------------------------------CLASES PARA EL ÁRBOL SINCTÁTICO-------------------------------------
     
+class Arbol():
+    def __init__(self):
+        nodos_internos = []
+        hojas = []
+        
+    def nuevo_nodo(self):
+        pass
+
+class NodoInterno():
+    pass
+
+class Hoja():
+    pass
+
 def menu_automataPila():
     limpiar_terminal()
     condicion = True
