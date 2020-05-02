@@ -404,20 +404,20 @@ class Gramatica():
                         else:
                             primeros_char_insertar_pila.append(coincidencia.insertar_pila[0])
                     
-                    print('Coincidencias:')
-                    for coincidencia in coincidencias:
-                        print(coincidencia.insertar_pila)
+                    # print('Coincidencias:')
+                    # for coincidencia in coincidencias:
+                    #     print(coincidencia.insertar_pila)
                     
-                    print('Primeros char:')
-                    print(primeros_char_insertar_pila)
-                    input('')
+                    # print('Primeros char:')
+                    # print(primeros_char_insertar_pila)
+                    # input('')
                     
                     for char in primeros_char_insertar_pila:
                         if char.isupper() and pila_cadena[-1] not in primeros_char_insertar_pila:
                             coincidencias2 = []
                             primeros_char = []
-                            print('No terminal encontrado --> ', char)
-                            input('')
+                            # print('No terminal encontrado --> ', char)
+                            # input('')
                             
                             for transicion in automata.transiciones:
                                 if transicion.sacar_pila == char:
@@ -505,12 +505,12 @@ class Gramatica():
                     movimientos = movimientos + '¡¡¡ENTRADA VÁLIDA!!!' + '\n'
                     condicion = False
                 
-                print('Pila --> ', pila)
-                print('Cadena --> ', pila_cadena)
-                input('')
+                # print('Pila --> ', pila)
+                # print('Cadena --> ', pila_cadena)
+                # input('')
             
-            print('Salió del ciclo')
-            input('')
+            # print('Salió del ciclo')
+            # input('')
         except:
             print('Cadena no válida try catch')
             input('')
@@ -535,7 +535,6 @@ class Gramatica():
     
     def generar_arbol(self):
         nodo_internos_noActivos = []
-        
         id = 1
         
         nuevo_arbol = Arbol() #instanciando el árbol que se utilizará
@@ -557,7 +556,7 @@ class Gramatica():
             nuevo_arbol.buscar_coincidencia(produccion.lado_izq, produccion.lado_der)
         
         #graficar nodos
-        for nodo_interno in reversed(nuevo_arbol.nodos_internos):
+        for nodo_interno in nuevo_arbol.nodos_internos:
             dot.node(str(nodo_interno.id), str(nodo_interno.simbolo), shape = 'circle')
             for hoja in nuevo_arbol.hojas:
                 dot.node(str(hoja.id), str(hoja.simbolo), shape = 'circle')
