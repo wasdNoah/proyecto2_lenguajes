@@ -84,7 +84,7 @@ class Gramatica():
                 
                 if nueva_produccion == '@':
                     break
-                elif nueva_produccion == '' or nueva_produccion is None:
+                elif nueva_produccion == '' or nueva_produccion is None or nueva_produccion == ' ':
                     print('ERROR. Entrada vacía')
                     input('')
                     limpiar_terminal()
@@ -169,6 +169,7 @@ class Gramatica():
             else:
                 self.nt_inicial = nuevo_nt_inicial
     
+    #quitando recursividad por la izquierda 
     def quitar_recursividad_izq(self):
         nuevas_producciones = []
         producc_noRI = []
@@ -187,8 +188,18 @@ class Gramatica():
             print('Gramática presenta recursividad por la izquierda.')
             input('')
         
+        #comenzando a quitar la recursividad por la izquierda
+        
+        # lado_izquierdo_noR = [] #lista que contiene lado izquierdo de las producciones no recursivas
+        # for produccion_noR in producc_noRI:
+        #     lado_izquierdo_noR.append(produccion_noR.lado_izq)
+            
+        lado_izquierdo_R = []
+        for produccion_r in producc_RI:
+            lado_izquierdo_R.append(produccion_r.lado_izq)
+        
         for produccion in producc_noRI:
-            if produccion.lado_izq == self.nt_inicial:
+            if produccion.lado_izq not in lado_izquierdo_R:
                 lado_derecho = ''
                 for char in produccion.lado_der:
                     if char == ' ' or char is None or char == '':
@@ -202,10 +213,11 @@ class Gramatica():
                 for char in produccion.lado_der:
                     elementos.append(char)
                 
-                produccion_inicial = '{} > {}'.format(produccion.lado_izq, lado_derecho)
-                produccion_incial_ = Produccion(produccion.lado_izq, elementos, produccion_inicial)
-                nuevas_producciones.append(produccion_incial_)
-        #comenzando a quitar la recursividad por la izquierda
+                produccion_normal = '{} > {}'.format(produccion.lado_izq, lado_derecho)
+                produccion_normal_ = Produccion(produccion.lado_izq, elementos, produccion_normal)
+                nuevas_producciones.append(produccion_normal_)
+                
+        
         for produccion in producc_RI:
             nt_prima = produccion.lado_izq+'P'
             
@@ -213,20 +225,21 @@ class Gramatica():
             produccion_epsilon = Produccion(nt_prima, 'epsilon', produccion_ep)
             nuevas_producciones.append(produccion_epsilon)
             
-            lado_derecho = ''
+            lado_derecho = '' #lado derecho que se imprime
             for char in produccion.lado_der[1:]:
                 if char == ' ' or char is None or char == '':
                     pass
                 else:
                     lado_derecho = lado_derecho + char + ' '
-            
-            lado_derecho = lado_derecho[:-1]
+            lado_derecho = lado_derecho + nt_prima
+            #lado_derecho = lado_derecho[:-1]
             
             elementos = []
             for char in produccion.lado_der[1:]:
                 elementos.append(char)
+            elementos.append(nt_prima)
                 
-            produccion_prim = '{} > {} {}'.format(nt_prima, lado_derecho, nt_prima)
+            produccion_prim = '{} > {}'.format(nt_prima, lado_derecho)
             produccion_prima = Produccion(nt_prima, elementos, produccion_prim)
             nuevas_producciones.append(produccion_prima)
         
@@ -242,13 +255,15 @@ class Gramatica():
                         else:
                             lado_derecho = lado_derecho + char + ' '
                             
-                    lado_derecho = lado_derecho[:-1]
+                    lado_derecho = lado_derecho + nt_prima_
+                    #lado_derecho = lado_derecho[:-1]
                     
                     elementos_derecha = []
                     for elemento in produccion_a.lado_der:
                         elementos_derecha.append(elemento)
+                    elementos_derecha.append(nt_prima_)
                     
-                    produccion_ingresar = '{} > {} {}'.format(produccion_a.lado_izq, lado_derecho, nt_prima_)
+                    produccion_ingresar = '{} > {}'.format(produccion_a.lado_izq, lado_derecho)
                     nueva_produccion = Produccion(produccion_a.lado_izq, elementos_derecha, produccion_ingresar)
                     nuevas_producciones.append(nueva_produccion)
         
