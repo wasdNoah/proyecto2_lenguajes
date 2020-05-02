@@ -330,7 +330,7 @@ class Gramatica():
                 print('Terminó de validar la cadena')
                 input('')
             elif eleccion == '2':
-                pass
+                self.generar_arbol()
             elif eleccion == '3':
                 self.generar_archivo_movimientos(contenido_movimientos)
                 print('Se generó el archivo')
@@ -513,7 +513,41 @@ class Gramatica():
         archivo.close()
     
     def generar_arbol(self):
-        pass
+        nodo_internos_noActivos = []
+        
+        id = 1
+        
+        nuevo_arbol = Arbol() #instanciando el árbol que se utilizará
+        dot = graphviz.Graph(comment='The Round Table', format='png')
+        
+        for produccion in self.producciones:
+            nuevo_arbol.crear_nodo_interno(id, produccion.lado_izq)
+            nuevo_arbol.crear_hoja(id, produccion.lado_izq)
+            nodo_internos_noActivos.append(produccion.lado_izq)
+            id += 1
+        #hojas
+        for produccion in self.producciones:
+            for char in produccion.lado_der:
+                if char not in nodo_internos_noActivos:
+                    nuevo_arbol.crear_hoja(id, char)
+                    id += 1
+        
+        for produccion in self.producciones:
+            nuevo_arbol.buscar_coincidencia(produccion.lado_izq, produccion.lado_der)
+        
+        #graficar nodos
+        for nodo_interno in reversed(nuevo_arbol.nodos_internos):
+            dot.node(str(nodo_interno.id), str(nodo_interno.simbolo), shape = 'circle')
+            for hoja in nuevo_arbol.hojas:
+                dot.node(str(hoja.id), str(hoja.simbolo), shape = 'circle')
+        
+        #contenctando los nodos creados
+        for nodo_interno in nuevo_arbol.nodos_internos:
+            for hoja in nodo_interno.hojas:
+                dot.edge(str(nodo_interno.id), str(hoja.id), constraint = 'true')
+        
+        dot.render(filename='Arbol_sintactico', view=True)
+        
     
     def imprimir_automata(self):
         automata = self.crear_automata_pila()
@@ -595,17 +629,41 @@ class Transicion():
     
 class Arbol():
     def __init__(self):
-        nodos_internos = []
-        hojas = []
+        self.nodos_internos = []
+        self.hojas = []
+    
+    def crear_nodo_interno(self, id, simbolo):
+        nuevo_nodo_interno = NodoInterno(id, simbolo)
+        self.nodos_internos.append(nuevo_nodo_interno)
+    
+    def crear_hoja(self, id, simbolo):
+        nueva_hoja = Hoja(id, simbolo)
+        self.hojas.append(nueva_hoja)
         
-    def nuevo_nodo(self):
-        pass
-
+    def buscar_coincidencia(self, lado_izquierdo, lado_derecho): #recibe lado izquierdo y derecho de una produccion
+        for nodo_interno in self.nodos_internos:
+            if nodo_interno.simbolo == lado_izquierdo and nodo_interno.activo == True:
+                for simbolo in lado_derecho:
+                    for hoja in self.hojas:
+                        if hoja.simbolo == simbolo and hoja.activo == True:
+                            nodo_interno.hojas.append(hoja)
+                            hoja.activo = False
+                            break
+                nodo_interno.activo = False
+                return
+    
 class NodoInterno():
-    pass
+    def __init__(self, id, simbolo):
+        self.id = id
+        self.simbolo = simbolo
+        self.activo = True
+        self.hojas = []
 
 class Hoja():
-    pass
+    def __init__(self, id, simbolo):
+        self.id = id
+        self.simbolo = simbolo
+        self.activo = True
 
 def menu_automataPila():
     limpiar_terminal()
