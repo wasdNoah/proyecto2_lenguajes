@@ -528,7 +528,7 @@ class Gramatica():
     #generando archivo CSV
     def generar_archivo_movimientos(self, contenido):
         ruta = 'D:\Repos-Github\proyecto2_lenguajes\proyecto2_lenguajes\Reporte.csv'
-        archivo = open(ruta, 'a', encoding='utf-8')
+        archivo = open(ruta, 'w', encoding='utf-8')
         
         archivo.write(contenido)
         archivo.close()
